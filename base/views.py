@@ -2,6 +2,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
+from django.http import HttpRequest  # Import HttpRequest from Django
 from rest_framework import status
 from base.models import Product, Category
 from .serializers import ProductSerializer, CategorySerializer
@@ -18,15 +19,32 @@ def index(req):
 def products(req,id=-1):
     print(req.data)
     print(id)
-    if req.method =='GET':
+    # if req.method =='GET':
+    #     if id > -1:
+    #         try:
+    #             temp_prod=Product.objects.get(id=id)
+    #             return Response (ProductSerializer(temp_prod,many=True).data)
+    #         except Product.DoesNotExist:
+    #             return Response ("not found")
+    #     all_tasks=ProductSerializer(Product.objects.all(),many=True).data
+    #     print(all_tasks)
+    #     return Response (all_tasks)
+    if req.method == 'GET':
         if id > -1:
             try:
-                temp_prod=Product.objects.get(id=id)
-                return Response (ProductSerializer(temp_prod,many=True).data)
+                temp_prod = Product.objects.get(id=id)
+                serialized_data = ProductSerializer(temp_prod, context={'request': req}).data
+                return Response(serialized_data)
             except Product.DoesNotExist:
-                return Response ("not found")
-        all_tasks=ProductSerializer(Product.objects.all(),many=True).data
-        return Response (all_tasks)
+                return Response("Not found", status=status.HTTP_404_NOT_FOUND)
+
+        all_products = Product.objects.all()
+        print(all_products)
+        serialized_data = ProductSerializer(all_products, many=True, context={'request': req}).data
+        print(serialized_data)
+        return Response(serialized_data)
+    
+
     if req.method =='POST':
         prod_serializer = ProductSerializer(data=req.data)
         if prod_serializer.is_valid():
@@ -46,18 +64,28 @@ def products(req,id=-1):
     # TODO : how to send id param
     if req.method =='PUT':
         print(f"id {id}")
-        try:
-            temp_prod=Product.objects.get(id=id)
-        except Product.DoesNotExist:
-            print("i'm in put")
-            print(f"id : {id}")
-            print(f"type of id  {type(id)}")
-            return Response ("not found")
+        # try:
+        #     temp_prod=Product.objects.get(id=id)
+        # except Product.DoesNotExist:
+        #     print("i'm in put")
+        #     print(f"id : {id}")
+        #     print(f"type of id  {type(id)}")
+        #     return Response ("not found")
        
-        ser = ProductSerializer(data=req.data)
-        old_prod = Product.objects.get(id=id)
-        res = ser.update(old_prod, req.data)
-        return Response(res)
+        # ser = ProductSerializer(data=req.data)
+        # old_prod = Product.objects.get(id=id)
+        # res = ser.update(old_prod, req.data)
+        # return Response(res)
+        try:
+            temp_prod = Product.objects.get(id=id)
+        except Product.DoesNotExist:
+            return Response("Product not found", status=status.HTTP_404_NOT_FOUND)
+
+        ser = ProductSerializer(temp_prod, data=req.data, partial = True)
+        if ser.is_valid():
+            ser.save()
+            return Response(ser.data)
+        return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 

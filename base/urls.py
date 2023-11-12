@@ -21,8 +21,8 @@ urlpatterns = [
     path('',views.index),
     path('products', views.products),
     path('products/<id>', views.products),
-    path('regsiter', views.register),
-    path('login/', views.MyTokenObtainPairView.as_view()),
+    path('register', views.register),
+    path('login', views.MyTokenObtainPairView.as_view()),
     path('members', views.member_only),
     path('categories', views.Category_view.as_view()),
 ]

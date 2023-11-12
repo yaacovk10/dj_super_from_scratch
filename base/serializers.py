@@ -3,7 +3,16 @@ from .models import Product
 from .models import Category
 
 class ProductSerializer(serializers.ModelSerializer):
-    class Meta:
+     image = serializers.SerializerMethodField()
+
+     def get_image(self, product):
+        request = self.context.get('request')
+        if product.img:
+            return request.build_absolute_uri(product.img.url)
+        return ''
+
+
+     class Meta:
         model = Product
         fields = '__all__'
     # def create(self, validated_data):

@@ -13,8 +13,9 @@ class Category(models.Model):
     
 class Product(models.Model):
     desc = models.CharField(max_length=50,null=True,blank=True)
-    price = models.DecimalField(max_digits=5,decimal_places=2)
+    price = models.DecimalField(max_digits=7,decimal_places=2)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, null= False)
+    img = models.ImageField()
  
     def __str__(self):
            return self.desc
