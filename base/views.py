@@ -39,9 +39,9 @@ def products(req,id=-1):
                 return Response("Not found", status=status.HTTP_404_NOT_FOUND)
 
         all_products = Product.objects.all()
-        print(all_products)
+        # print(all_products)
         serialized_data = ProductSerializer(all_products, many=True, context={'request': req}).data
-        print(serialized_data)
+        # print(serialized_data)
         return Response(serialized_data)
     
 
